@@ -74,8 +74,17 @@ function App() {
   return (
     <div className={styles.app}>
       <header className={styles.toolbar}>
-        {/* Використовуємо нову функцію handleSearch */}
         <SearchBox value={search} onChange={handleSearch} />
+
+        {/* ПАГІНАЦІЯ ПЕРЕНЕСЕНА СЮДИ */}
+        {!isLoading && !isError && totalPages > 1 && (
+          <Pagination
+            totalPages={totalPages}
+            currentPage={page}
+            onPageChange={setPage}
+          />
+        )}
+
         <button className={styles.button} onClick={openModal}>
           Create note +
         </button>
@@ -90,14 +99,6 @@ function App() {
         ) : (
           !isLoading &&
           !isError && <p className={styles.empty}>No notes found.</p>
-        )}
-
-        {!isLoading && !isError && totalPages > 1 && (
-          <Pagination
-            totalPages={totalPages}
-            currentPage={page}
-            onPageChange={setPage}
-          />
         )}
       </main>
 
