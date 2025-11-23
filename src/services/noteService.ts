@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { CreateNoteParams, FetchNotesResponse, Note } from "../types/note";
+import type { CreateNoteParams, Note } from "../types/note";
 
 const API_URL = "https://notehub-public.goit.study/api/notes";
 const API_TOKEN = import.meta.env.VITE_NOTEHUB_TOKEN;
@@ -10,6 +10,14 @@ const api = axios.create({
     Authorization: `Bearer ${API_TOKEN}`,
   },
 });
+
+export interface FetchNotesResponse {
+  page: number;
+  perPage: number;
+  totalPages: number;
+  totalItems: number;
+  notes: Note[];
+}
 
 export const fetchNotes = async (
   page: number,

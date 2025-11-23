@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
-import { Toaster, toast } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 import SearchBox from "../SearchBox/SearchBox";
 import NoteList from "../NoteList/NoteList";
@@ -11,8 +11,7 @@ import NoteForm from "../NoteForm/NoteForm";
 import Loader from "../Loader/Loader";
 import ErrorMessage from "../ErrorMessage/ErrorMessage";
 
-import { fetchNotes, createNote, deleteNote } from "../../services/noteService";
-import type { CreateNoteParams } from "../../types/note";
+import { fetchNotes } from "../../services/noteService";
 import styles from "./App.module.css";
 
 function App() {
@@ -20,8 +19,6 @@ function App() {
   const [search, setSearch] = useState("");
   const [debouncedSearch] = useDebounce(search, 500);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["notes", page, debouncedSearch],
@@ -32,37 +29,6 @@ function App() {
   const handleSearch = (newSearch: string) => {
     setSearch(newSearch);
     setPage(1);
-  };
-
-  const createMutation = useMutation({
-    mutationFn: createNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      setIsModalOpen(false);
-      toast.success("Note created successfully!");
-    },
-    onError: () => {
-      toast.error("Failed to create note.");
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      toast.success("Note deleted!");
-    },
-    onError: () => {
-      toast.error("Failed to delete note.");
-    },
-  });
-
-  const handleCreateNote = (values: CreateNoteParams) => {
-    createMutation.mutate(values);
-  };
-
-  const handleDeleteNote = (id: string) => {
-    deleteMutation.mutate(id);
   };
 
   const openModal = () => setIsModalOpen(true);
@@ -76,7 +42,6 @@ function App() {
       <header className={styles.toolbar}>
         <SearchBox value={search} onChange={handleSearch} />
 
-        {/* ПАГІНАЦІЯ ПЕРЕНЕСЕНА СЮДИ */}
         {!isLoading && !isError && totalPages > 1 && (
           <Pagination
             totalPages={totalPages}
@@ -95,7 +60,7 @@ function App() {
         {isError && <ErrorMessage />}
 
         {!isLoading && !isError && notes.length > 0 ? (
-          <NoteList notes={notes} onDelete={handleDeleteNote} />
+          <NoteList notes={notes} />
         ) : (
           !isLoading &&
           !isError && <p className={styles.empty}>No notes found.</p>
@@ -103,7 +68,7 @@ function App() {
       </main>
 
       <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <NoteForm onSubmit={handleCreateNote} onCancel={closeModal} />
+        <NoteForm onClose={closeModal} />
       </Modal>
 
       <Toaster position="top-right" />
