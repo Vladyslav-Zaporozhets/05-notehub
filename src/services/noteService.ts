@@ -12,11 +12,8 @@ const api = axios.create({
 });
 
 export interface FetchNotesResponse {
-  page: number;
-  perPage: number;
-  totalPages: number;
-  totalItems: number;
   notes: Note[];
+  totalPages: number;
 }
 
 export const fetchNotes = async (
